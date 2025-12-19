@@ -20,7 +20,7 @@ internal sealed class DigitalLinkConverter(OptimizationCodes optimizationCodes, 
 
         return new CompressionResult
         {
-            UncompressedValue = digitalLink.ToString(),
+            DecompressedValue = digitalLink.ToString(),
             CompressedValue = compressedResult
         };
     }

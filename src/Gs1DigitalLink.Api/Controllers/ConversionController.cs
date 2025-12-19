@@ -17,7 +17,9 @@ public sealed class ConversionController(IDigitalLinkConverter converter) : Cont
         var compressionResult = converter.Compress(Request.GetDisplayUrl(), options);
         var response = new
         {
-            CompressedValue = compressionResult,
+            compressionResult.CompressedValue,
+            compressionResult.DecompressedValue,
+            compressionResult.CompressionRate,
             CanonicalUrl = $"{Request.Scheme}://{Request.Host}/{compressionResult.CompressedValue}"
         };
 

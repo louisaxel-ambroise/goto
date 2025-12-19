@@ -18,9 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Formatters\Views\Linkset.cshtml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\favicon-16x16.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

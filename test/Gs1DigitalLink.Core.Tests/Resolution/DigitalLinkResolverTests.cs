@@ -38,7 +38,7 @@ public sealed class DigitalLinkResolverTests
     {
         var links = new[]
         {
-            new Link { Prefix = "01/09506000134352", Language = null, Title = "test gtin", RedirectUrl = "http://a", LinkTypes = ["gs1:defaultLink"] }
+            new Link { Prefix = "01/09506000134352", Language = null, Title = "test gtin", RedirectUrl = "http://a", LinkType = "gs1:defaultLink" }
         };
 
         var resolver = new DigitalLinkResolver(new FakePrefixRegistry(links), new FakeLanguageContext());

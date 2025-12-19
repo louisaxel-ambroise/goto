@@ -1,6 +1,6 @@
 namespace Gs1DigitalLink.Api.Contracts;
 
-public sealed record ErrorResponse
+public sealed record ErrorResult
 {
     public required string Type { get; init; }
     public required string Title { get; init; }

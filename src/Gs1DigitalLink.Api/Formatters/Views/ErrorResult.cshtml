@@ -4,8 +4,8 @@
     Layout = "_Layout";
     ViewData["Title"] = Localizer["Error"];
 }
-@model ErrorResponse
-@inject IStringLocalizer<ErrorResponse> Localizer
+@model ErrorResult
+@inject IStringLocalizer<ErrorResult> Localizer
 
 <h2>@Model.Status - @Localizer[Model.Title]</h2>
 

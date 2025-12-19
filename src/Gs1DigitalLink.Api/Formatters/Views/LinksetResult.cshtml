@@ -1,0 +1,67 @@
+﻿@using Gs1DigitalLink.Api.Contracts
+@using Gs1DigitalLink.Api.Formatters.Models
+@using Microsoft.Extensions.Localization
+@using System.Globalization
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Localizer["Linkset"];
+}
+@model LinksetResult
+@inject IStringLocalizer<LinksetResult> Localizer
+
+@if(Model.Linkset.Any())
+{
+    <h2>@Localizer["Linkset for this resource"]</h2>
+
+    <ul>
+        @foreach(var link in ParseLinkset(Model))
+        {
+            <li>
+                <a href="@link.Href">@link.Title</a>
+                @foreach (var lang in link.HrefLang.Where(lang => !string.IsNullOrEmpty(lang)))
+                {
+                    <span class="tag language">@GetCountryName(lang!)</span>
+                }
+                @foreach(var linkType in link.LinkTypes)
+                {
+                    var type = linkType.StartsWith("gs1:defaultLink", StringComparison.OrdinalIgnoreCase) ? "defaultLink" : "linkType";
+
+                    <span class="tag @type">@Localizer[linkType]</span>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <h2>@Localizer["No links configured for this resource"]</h2>
+}
+
+@{
+    string GetCountryName(string language)
+    {
+        var culture = CultureInfo.GetCultureInfoByIetfLanguageTag(language);
+
+        return culture.DisplayName;
+    }
+
+    IEnumerable<Link> ParseLinkset(LinksetResult linkset)
+    {
+        var links = linkset.Linkset.SelectMany(linkset => linkset.Value.Select(link => new Link
+                {
+                    Href = link.Href,
+                    HrefLang = [ link.HrefLang ],
+                    LinkTypes = [ linkset.Key ],
+                    Title = link.Title
+                }));
+
+        return links.GroupBy(l => new { l.Href, l.Title })
+            .Select(grp => new Link
+            {
+                Href = grp.Key.Href,
+                Title = grp.Key.Title,
+                HrefLang = grp.SelectMany(l => l.HrefLang).Distinct(),
+                LinkTypes = grp.SelectMany(l => l.LinkTypes).Distinct()
+            });
+    }
+}

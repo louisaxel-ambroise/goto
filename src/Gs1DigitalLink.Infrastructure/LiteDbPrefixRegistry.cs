@@ -66,14 +66,13 @@ internal sealed class LiteDbPrefixRegistry : IPrefixRegistry
 
     private static IEnumerable<Link> MapToLinks(IEnumerable<StoredLink> results)
     {
-        return results.GroupBy(l => new { l.Prefix, l.Language, l.Title, l.RedirectUrl })
-            .Select(grp => new Link
+        return results.Select(link => new Link
             {
-                Language = grp.Key.Language,
-                LinkTypes = [.. grp.Select(l => l.LinkType)],
-                RedirectUrl = grp.Key.RedirectUrl,
-                Prefix = grp.Key.Prefix,
-                Title = grp.Key.Title
+                Language = link.Language,
+                LinkType = link.LinkType,
+                RedirectUrl = link.RedirectUrl,
+                Prefix = link.Prefix,
+                Title = link.Title
             });
     }
 }

@@ -33,16 +33,11 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
     {
         var resolvedValue = resolver.GetLinkset(digitalLink);
         var queryElement = Request.Query.Where(s => s.Key != "linkType");
-        var linkset = new Contracts.Linkset
-        {
-            Links = resolvedValue.Links.Select(MapLink)
-        };
-
-        var formattedLinks = resolvedValue.Links.SelectMany(l => l.LinkTypes.Select(lt => $"<{QueryHelpers.AddQueryString(l.RedirectUrl, queryElement)}>; rel=\"{lt}\";{(l.Language is null ? "" : "hreflang=\"" + l.Language + "\"")}")).ToList();
+        var formattedLinks = resolvedValue.Select(l => $"<{QueryHelpers.AddQueryString(l.RedirectUrl, queryElement)}>; rel=\"{l.LinkType}\";{(l.Language is null ? "" : "hreflang=\"" + l.Language + "\"")}").ToList();
 
         Response.Headers.AppendList("Link", formattedLinks);
 
-        return new OkObjectResult(linkset);
+        return new OkObjectResult(GenerateLinkset(resolvedValue));
     }
 
     private IActionResult Resolve(DigitalLink digitalLink)
@@ -63,7 +58,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
     private NotFoundObjectResult NotFoundResult()
     {
-        return new NotFoundObjectResult(new ErrorResponse
+        return new NotFoundObjectResult(new ErrorResult
         {
             Status = StatusCodes.Status404NotFound,
             Type = "NotFound",
@@ -87,7 +82,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
         Response.Headers.AppendList("Link", formattedLinks);
 
-        return new ObjectResult(new MultipleChoice { Links = links.Select(MapLink) })
+        return new ObjectResult(new MultipleChoiceResult { Links = links.Select(MapLink) })
         {
             StatusCode = StatusCodes.Status300MultipleChoices,
         };
@@ -98,14 +93,17 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
     private bool IsLinksetRequired => Request.GetTypedHeaders().Accept.Any(a => a.MediaType == "application/linkset+json") 
                                    || Request.Query["linkType"].ToString() is "linkset" or "all";
 
+    private LinksetResult GenerateLinkset(IEnumerable<Link> links)
+    {
+        return new LinksetResult { Linkset = links.GroupBy(l => l.LinkType).ToDictionary(lt => lt.Key, lt => lt.Select(MapLink)) };
+    }
+
     private LinkDefinition MapLink(Link link)
     {
         return new LinkDefinition
         {
-            Language = link.Language,
-            LinkTypes = link.LinkTypes,
-            Prefix = link.Prefix,
-            RedirectUrl = QueryHelpers.AddQueryString(link.RedirectUrl, HttpContext.Request.Query.Where(s => s.Key != "linkType")),
+            HrefLang = link.Language,
+            Href = QueryHelpers.AddQueryString(link.RedirectUrl, HttpContext.Request.Query.Where(s => s.Key != "linkType")),
             Title = link.Title
         };
     }

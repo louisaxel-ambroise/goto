@@ -22,7 +22,7 @@ internal sealed class InsightDigitalLinkResolver(IDigitalLinkResolver resolver, 
         return result;
     }
 
-    public Linkset GetLinkset(DigitalLink digitalLink)
+    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink)
     {
         return resolver.GetLinkset(digitalLink);
     }

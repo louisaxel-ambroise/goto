@@ -15,7 +15,7 @@ public sealed class ErrorController : ControllerBase
     {
         var ex = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
         var problem = ex is null
-            ? new ErrorResponse
+            ? new ErrorResult
             {
                 Type = "InternalError",
                 Title = "Unable to process the request",
@@ -23,7 +23,7 @@ public sealed class ErrorController : ControllerBase
                 Errors = [],
                 Status = (int) HttpStatusCode.InternalServerError
             }
-            : new ErrorResponse
+            : new ErrorResult
             {
                 Type = "InternalError",
                 Title = "Unable to process the request",

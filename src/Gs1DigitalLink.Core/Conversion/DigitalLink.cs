@@ -4,9 +4,9 @@ namespace Gs1DigitalLink.Core.Conversion;
 
 public record CompressionResult
 {
-    public required string UncompressedValue { get; init; }
+    public required string DecompressedValue { get; init; }
     public required string CompressedValue { get; init; }
-    public decimal CompressionRate => Math.Round(100 - (100*Convert.ToDecimal(CompressedValue.Length)/Convert.ToDecimal(UncompressedValue.Length)), 2);
+    public decimal CompressionRate => Math.Round(100 - (100*Convert.ToDecimal(CompressedValue.Length)/Convert.ToDecimal(DecompressedValue.Length)), 2);
 }
 
 public class DigitalLink

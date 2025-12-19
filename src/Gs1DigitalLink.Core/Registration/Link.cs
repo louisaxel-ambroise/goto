@@ -6,10 +6,5 @@ public sealed record Link
     public required string RedirectUrl { get; init; }
     public required string Title { get; init; }
     public required string? Language { get; init; }
-    public required string[] LinkTypes { get; init; }
-}
-
-public sealed record Linkset
-{
-    public required IEnumerable<Link> Links { get; set; }
+    public required string LinkType { get; init; }
 }

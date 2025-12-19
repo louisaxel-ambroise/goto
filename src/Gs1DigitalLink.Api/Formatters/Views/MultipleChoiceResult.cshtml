@@ -1,0 +1,33 @@
+﻿@using Gs1DigitalLink.Api.Contracts
+@using Microsoft.Extensions.Localization
+@using System.Globalization
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Localizer["Multiple choices available"];
+}
+@model MultipleChoiceResult
+@inject IStringLocalizer<MultipleChoiceResult> Localizer
+
+<h2>@Localizer["Multiple links are available for this resource"]</h2>
+
+<ul>
+    @foreach (var link in Model.Links)
+    {
+        <li>
+            <a href="@link.Href">@link.Title</a>
+            @if(link.HrefLang is not null)
+            {
+                <span class="tag language">@GetCountryName(link.HrefLang)</span>
+            }
+        </li>
+    }
+</ul>
+
+@{
+    string GetCountryName(string language)
+    {
+        var culture = CultureInfo.GetCultureInfoByIetfLanguageTag(language);
+
+        return culture.DisplayName;
+    }
+}

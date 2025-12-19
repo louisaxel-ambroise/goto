@@ -8,16 +8,16 @@ namespace Gs1DigitalLink.Core.Resolution;
 public interface IDigitalLinkResolver
 {
     IEnumerable<Link> GetCandidates(DigitalLink digitalLink, string? linkType);
-    Linkset GetLinkset(DigitalLink digitalLink);
+    IEnumerable<Link> GetLinkset(DigitalLink digitalLink);
 }
 
 internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILanguageContext languageContext) : IDigitalLinkResolver
 {
-    public Linkset GetLinkset(DigitalLink digitalLink)
+    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink)
     {
         var links = LoadCandidates(digitalLink);
 
-        return new Linkset { Links = FormatUriTemplates(links, digitalLink) };
+        return FormatUriTemplates(links, digitalLink);
     }
 
     public IEnumerable<Link> GetCandidates(DigitalLink digitalLink, string? linkType)
@@ -27,11 +27,11 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
 
         if (linkType is not null)
         {
-            matchingLinks = matchingLinks.Where(l => l.LinkTypes.Contains(linkType));
+            matchingLinks = matchingLinks.Where(l => l.LinkType == linkType);
         }
         else
         {
-            matchingLinks = matchingLinks.Where(l => l.LinkTypes.ContainsAny("gs1:defaultLink", "gs1:defaultLinkMulti"));
+            matchingLinks = matchingLinks.Where(l => l.LinkType == "gs1:defaultLink" || l.LinkType == "gs1:defaultLinkMulti");
         }
 
         var filteredLinks = FindByLanguages(matchingLinks, languages);
