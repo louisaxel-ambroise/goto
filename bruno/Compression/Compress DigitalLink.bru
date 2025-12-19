@@ -1,0 +1,20 @@
+meta {
+  name: Compress DigitalLink
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BaseUrl}}/api/compress/{{digitalLink}}
+  body: none
+  auth: none
+}
+
+headers {
+  x-compression-type: {{compressionType}}
+}
+
+vars:pre-request {
+  digitalLink: 01/05414195535264
+  compressionType: Full
+}

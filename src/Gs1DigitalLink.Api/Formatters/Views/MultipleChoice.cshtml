@@ -1,0 +1,17 @@
+﻿@using Gs1DigitalLink.Api.Contracts
+@using Microsoft.Extensions.Localization
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Localizer["Multiple choices available"];
+}
+@model MultipleChoice
+@inject IStringLocalizer<MultipleChoice> Localizer
+
+<h2>@Localizer["Multiple links are available for this resource"]</h2>
+
+<ul>
+    @foreach (var link in Model.Links)
+    {
+        <li><a href="@link.RedirectUrl">@link.Title <em>(@link.Language)</em></a></li>
+    }
+</ul>

@@ -1,0 +1,25 @@
+meta {
+  name: Resolve a DigitalLink request
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BaseUrl}}/{{digitalLink}}?linkType={{linkType}}
+  body: none
+  auth: none
+}
+
+params:query {
+  linkType: {{linkType}}
+}
+
+headers {
+  accept-language: {{language}}
+}
+
+vars:pre-request {
+  digitalLink: 01/05414195535264
+  linkType: gs1:pip
+  language: fr-FR
+}

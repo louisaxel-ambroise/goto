@@ -1,0 +1,15 @@
+meta {
+  name: Uncompress DigitalLink
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BaseUrl}}/api/decompress/{{compressedLink}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  compressedLink: 01/05414195535264/
+}

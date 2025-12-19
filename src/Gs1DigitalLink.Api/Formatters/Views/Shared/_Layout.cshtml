@@ -1,0 +1,85 @@
+﻿@using System.Globalization
+@{
+    var direction = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft
+                ? "rtl"
+                : "ltr";
+}
+    <!DOCTYPE html>
+<html dir="@direction">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <title>@ViewData["Title"] - Goto.it.com</title>
+        <style>
+            /* Reset some default styles */
+            * {
+              margin: 0;
+              padding: 0;
+            }
+            body{background:#eee;color:#111;width:clamp(600px, 60vw, 900px);margin:5vh auto;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}
+            div{opacity:0.8}
+            a:link,a:visited{color:#004578}
+            h1.logo{direction:ltr}
+            h1.logo span {
+                display: inline-block;
+                background: #111;
+                color: #eee;
+                border-radius: 5px;
+                height: 40px;
+                line-height: 40px;
+                width: 40px;
+                margin-right: 1px;
+                text-align: center;
+            }
+
+            h1 {
+                font-weight: 600;
+                font-size: 25px;
+                text-transform: uppercase;
+            }
+
+            .content {
+              padding: 20px;
+              margin:20px;
+              background-color: #fefefe;
+              border-radius: 8px;
+              box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            }
+            .content h2 { text-align:center; }
+            .content ul, .content p{ margin:10px; }
+            .content li{ list-style: circle inside; padding:8px 3px; }
+            span.tag{ color:#fefefe; text-transform:uppercase;margin-left:5px;padding:3px 5px; border-radius:5px;font-size:.65rem;letter-spacing:1px;font-weight:700;}
+            span.language{background:#111;}
+            span.linkType{background:#183b80;}
+            span.defaultLink{background:#006218;}
+            footer {
+              margin-top: 20px;
+              font-size: 12px;
+              color: #777;
+              text-align: center;
+            }
+
+            footer a {
+              color: #777;
+              text-decoration: none;
+              margin-left: 5px;
+            }
+
+            footer a:hover {
+              text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="logo"><span>Go</span>to</h1>
+        <div class="content">
+            @RenderBody()
+        </div>
+        <footer>
+            &copy; 2025 Goto.it.com
+            <a href="/">Home</a>
+        </footer>
+    </body>
+</html>

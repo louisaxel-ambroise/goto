@@ -1,0 +1,22 @@
+meta {
+  name: Remove a redirection link for a DigitalLink
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{BaseUrl}}/api/register/{{digitalLink}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "linkTypes": ["gs1:pip", "gs1:defaultLink"],
+    "language": null
+  }
+}
+
+vars:pre-request {
+  digitalLink: /01/05414195535264
+}

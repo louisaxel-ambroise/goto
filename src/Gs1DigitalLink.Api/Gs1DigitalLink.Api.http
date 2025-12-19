@@ -1,0 +1,28 @@
+@Gs1DigitalLink.Api_HostAddress = http://localhost:5138
+
+## Decompress a GS1 DigitalLink
+GET {{Gs1DigitalLink.Api_HostAddress}}/api/decompress/CwnZLmc7QAw8SA
+Accept: application/json
+
+###
+## Compress a GS1 DigitalLink
+GET {{Gs1DigitalLink.Api_HostAddress}}/api/compress/01/05414195535264/10/123456
+Accept: application/json
+
+###
+## Register a link type
+POST {{Gs1DigitalLink.Api_HostAddress}}/api/register
+Accept: application/json
+Content-Type: application/json
+{
+  "Prefix": "/01/09520123456887",
+  "RedirectUrl": "https://example.com/product{/gtin}?lang=tlh",
+  "Title": "Example redirection",
+  "Language": "tlh",
+  "LinkTypes": ["gs1:pip"]
+}
+
+###
+## Resolve a DigitalLink
+GET {{Gs1DigitalLink.Api_HostAddress}}/01/09520123456887?linkType=gs1:pip
+Accept: application/json
