@@ -20,3 +20,9 @@ obj
 
 #LiteDB files
 *.db
+
+#publish profiles
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
