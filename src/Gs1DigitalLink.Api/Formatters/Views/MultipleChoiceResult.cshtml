@@ -15,9 +15,9 @@
     {
         <li>
             <a href="@link.Href">@link.Title</a>
-            @if(link.HrefLang is not null)
+            @foreach(var lang in link.Hreflang)
             {
-                <span class="tag language">@GetCountryName(link.HrefLang)</span>
+                <span class="tag language">@GetCountryName(lang)</span>
             }
         </li>
     }

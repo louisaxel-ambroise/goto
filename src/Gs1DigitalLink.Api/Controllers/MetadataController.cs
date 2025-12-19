@@ -13,7 +13,7 @@ public sealed class MetadataController : ControllerBase
         {
             resolverRoot = $"{Request.Scheme}://{Request.Host}",
             name = "GOTO Resolver - FasT&T",
-            supportedPrimaryKeys = "all",
+            supportedPrimaryKeys = new[] { "all" },
             linkTypeDefaultCanBeLinkset = false,
             contact = new
             {

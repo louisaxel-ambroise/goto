@@ -18,9 +18,9 @@
         {
             <li>
                 <a href="@link.Href">@link.Title</a>
-                @foreach (var lang in link.HrefLang.Where(lang => !string.IsNullOrEmpty(lang)))
+                @foreach (var lang in link.Hreflang)
                 {
-                    <span class="tag language">@GetCountryName(lang!)</span>
+                    <span class="tag language">@GetCountryName(lang)</span>
                 }
                 @foreach(var linkType in link.LinkTypes)
                 {
@@ -47,11 +47,11 @@ else
 
     IEnumerable<Link> ParseLinkset(LinksetResult linkset)
     {
-        var links = linkset.Linkset.SelectMany(linkset => linkset.Value.Select(link => new Link
+        var links = linkset.Linkset.First().Links.SelectMany(linkset => ((IEnumerable<LinkDefinition>)linkset.Value).Select(link => new Link
                 {
                     Href = link.Href,
-                    HrefLang = [ link.HrefLang ],
-                    LinkTypes = [ linkset.Key ],
+                    Hreflang = link.Hreflang,
+                    LinkTypes = [ linkset.Key.Replace("https://ref.gs1.org/voc/", "gs1:") ],
                     Title = link.Title
                 }));
 
@@ -60,7 +60,7 @@ else
             {
                 Href = grp.Key.Href,
                 Title = grp.Key.Title,
-                HrefLang = grp.SelectMany(l => l.HrefLang).Distinct(),
+                Hreflang = grp.SelectMany(l => l.Hreflang).Distinct(),
                 LinkTypes = grp.SelectMany(l => l.LinkTypes).Distinct()
             });
     }

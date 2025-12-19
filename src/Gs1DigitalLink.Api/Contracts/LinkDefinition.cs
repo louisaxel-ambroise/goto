@@ -8,5 +8,5 @@ public sealed record LinkDefinition
     public required string Href { get; init; }
     [Required]
     public required string Title { get; init; }
-    public required string? HrefLang { get; init; }
+    public required string[] Hreflang { get; init; }
 }

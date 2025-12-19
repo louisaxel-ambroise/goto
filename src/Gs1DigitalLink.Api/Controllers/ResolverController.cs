@@ -5,12 +5,13 @@ using Gs1DigitalLink.Core.Resolution;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Linq;
 
 namespace Gs1DigitalLink.Api.Controllers;
 
 [ApiController]
 [Route("")]
-[Produces("application/json", "text/html")]
+[Produces("application/json", "application/linkset+json", "text/html")]
 public sealed class ResolverController(IDigitalLinkConverter converter, IDigitalLinkResolver resolver) : ControllerBase
 {
     [HttpGet("{**_:minlength(2)}", Name = "Resolve")]
@@ -35,6 +36,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
         var queryElement = Request.Query.Where(s => s.Key != "linkType");
         var formattedLinks = resolvedValue.Select(l => $"<{QueryHelpers.AddQueryString(l.RedirectUrl, queryElement)}>; rel=\"{l.LinkType}\";{(l.Language is null ? "" : "hreflang=\"" + l.Language + "\"")}").ToList();
 
+        Response.Headers.Append("Link", "<http://www.w3.org/ns/json-ld#context>; rel=\"http://www.w3.org/ns/json-ld#context\"");
         Response.Headers.AppendList("Link", formattedLinks);
 
         return new OkObjectResult(GenerateLinkset(resolvedValue));
@@ -95,14 +97,22 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
     private LinksetResult GenerateLinkset(IEnumerable<Link> links)
     {
-        return new LinksetResult { Linkset = links.GroupBy(l => l.LinkType).ToDictionary(lt => lt.Key, lt => lt.Select(MapLink)) };
+        var linkset = links
+            .GroupBy(l => l.Prefix)
+            .Select(p => new LinksetDefinition 
+            { 
+                Anchor = $"{Request.Scheme}://{Request.Host}/{p.Key}", 
+                Links = p.GroupBy(l => l.LinkType.Replace("gs1:", "https://ref.gs1.org/voc/")).ToDictionary(lt => lt.Key, lt => (object) lt.Select(MapLink))
+            });
+
+        return new LinksetResult { Linkset = linkset };
     }
 
     private LinkDefinition MapLink(Link link)
     {
         return new LinkDefinition
         {
-            HrefLang = link.Language,
+            Hreflang = string.IsNullOrEmpty(link.Language) ? [] : [ link.Language ],
             Href = QueryHelpers.AddQueryString(link.RedirectUrl, HttpContext.Request.Query.Where(s => s.Key != "linkType")),
             Title = link.Title
         };

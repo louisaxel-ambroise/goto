@@ -3,7 +3,9 @@ using Gs1DigitalLink.Api.Services;
 using Gs1DigitalLink.Core;
 using Gs1DigitalLink.Core.Resolution;
 using Gs1DigitalLink.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +25,12 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("AllowAll", p => p.AllowAnyMethod().AllowAnyOrigin().AllowAnyHeader());
 });
 builder.Services.AddControllersWithViews(options =>
 {
-    options.OutputFormatters.Insert(0, new HtmlViewFormatter());
+    options.OutputFormatters.Add(new HtmlViewFormatter());
+    options.OutputFormatters.OfType<SystemTextJsonOutputFormatter>().First().SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/linkset+json"));
     options.RespectBrowserAcceptHeader = true;
 });
 
@@ -36,8 +39,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthorization();
-app.MapStaticAssets().ShortCircuit();
 app.UseRequestLocalization();
 app.UseExceptionHandler("/error");
-app.MapControllers();
+app.MapControllers().RequireCors("AllowAll");
+app.MapStaticAssets().ShortCircuit();
 app.Run();
