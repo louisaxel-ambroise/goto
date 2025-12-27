@@ -11,7 +11,7 @@ namespace Gs1DigitalLink.Api.Controllers;
 [Produces("application/json")]
 public sealed class InsightsController(IDigitalLinkConverter converter, IInsightRetriever insightRetriever) : ControllerBase
 {
-    [HttpGet("{**_}", Name = "ListInsights")]
+    [HttpGet("{**_}")]
     public IActionResult ListInsights(ListInsightRequest request)
     {
         var digitalLink = converter.Parse(Request.GetDisplayUrl());

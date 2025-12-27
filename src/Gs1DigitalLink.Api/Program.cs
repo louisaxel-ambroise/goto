@@ -1,22 +1,24 @@
-using Gs1DigitalLink.Api.Formatters;
+using Gs1DigitalLink.Api.Contracts;
+using Gs1DigitalLink.Api.Formatters.Html;
 using Gs1DigitalLink.Api.Services;
 using Gs1DigitalLink.Core;
 using Gs1DigitalLink.Core.Resolution;
 using Gs1DigitalLink.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDigitalLinkCore();
 builder.Services.AddDigitalLinkInfrastructure();
 builder.Services.AddScoped<ILanguageContext, HttpLanguageContext>();
+builder.Services.AddAuthentication();
+builder.Services.AddRouting();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Formatters/Views/Resources");
+builder.Services.Configure<GS1ResolverOptions>(builder.Configuration.GetSection(GS1ResolverOptions.Key));
+builder.Services.AddLocalization(options => options.ResourcesPath = "Formatters/Html/Views/Resources");
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {
-    options.ViewLocationFormats.Add("/Formatters/Views/Shared/{1}/{0}.cshtml");
+    options.ViewLocationFormats.Add("/Formatters/Html/Views/Shared/{1}/{0}.cshtml");
 });
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -25,22 +27,21 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", p => p.AllowAnyMethod().AllowAnyOrigin().AllowAnyHeader());
+    options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyOrigin().WithMethods("GET", "HEAD", "OPTIONS"));
+    options.AddPolicy("DataManagement", policy => policy.AllowAnyHeader().AllowAnyOrigin().WithMethods("GET", "POST", "DELETE", "HEAD", "OPTIONS"));
 });
 builder.Services.AddControllersWithViews(options =>
 {
     options.OutputFormatters.Add(new HtmlViewFormatter());
-    options.OutputFormatters.OfType<SystemTextJsonOutputFormatter>().First().SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/linkset+json"));
     options.RespectBrowserAcceptHeader = true;
 });
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors();
 app.UseAuthorization();
 app.UseRequestLocalization();
 app.UseExceptionHandler("/error");
-app.MapControllers().RequireCors("AllowAll");
-app.MapStaticAssets().ShortCircuit();
+app.MapControllers();
 app.Run();

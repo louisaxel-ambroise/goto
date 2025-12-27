@@ -9,7 +9,7 @@
 @model LinksetResult
 @inject IStringLocalizer<LinksetResult> Localizer
 
-@if(Model.Linkset.Any())
+@if(Model.Links.Any())
 {
     <h2>@Localizer["Linkset for this resource"]</h2>
 
@@ -47,21 +47,22 @@ else
 
     IEnumerable<Link> ParseLinkset(LinksetResult linkset)
     {
-        var links = linkset.Linkset.First().Links.SelectMany(linkset => ((IEnumerable<LinkDefinition>)linkset.Value).Select(link => new Link
-                {
-                    Href = link.Href,
-                    Hreflang = link.Hreflang,
-                    LinkTypes = [ linkset.Key.Replace("https://ref.gs1.org/voc/", "gs1:") ],
-                    Title = link.Title
-                }));
+        var links = linkset.Links.SelectMany(grp => grp.Value.Select(link => new Link
+        {
+            LinkTypes = [grp.Key],
+            Href = link.Href,
+            Hreflang = link.Hreflang,
+            Title = link.Title
+        }));
 
-        return links.GroupBy(l => new { l.Href, l.Title })
+        return links
+            .GroupBy(l => new { l.Href, Hreflang = l.Hreflang.SingleOrDefault(), l.Title })
             .Select(grp => new Link
-            {
-                Href = grp.Key.Href,
-                Title = grp.Key.Title,
-                Hreflang = grp.SelectMany(l => l.Hreflang).Distinct(),
-                LinkTypes = grp.SelectMany(l => l.LinkTypes).Distinct()
-            });
+                {
+                    Href = grp.Key.Href,
+                    Hreflang = grp.Key.Hreflang is null ? [] : [ grp.Key.Hreflang ],
+                    LinkTypes = grp.SelectMany(l => l.LinkTypes),
+                    Title = grp.Key.Title
+                });
     }
 }

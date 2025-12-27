@@ -10,7 +10,7 @@ namespace Gs1DigitalLink.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class RegisterController(IDigitalLinkConverter converter, ILinkRegistrator registrator) : ControllerBase
 {
-    [HttpPost("{**_}", Name = "Register")]
+    [HttpPost("{**_}")]
     public IActionResult Register([FromBody] RegisterLinkDefinitionRequest request)
     {
         var digitalLink = converter.Parse(Request.GetDisplayUrl());
@@ -20,7 +20,7 @@ public sealed class RegisterController(IDigitalLinkConverter converter, ILinkReg
         return new NoContentResult();
     }
 
-    [HttpDelete("{**_}", Name = "Delete")]
+    [HttpDelete("{**_}")]
     public IActionResult Delete([FromBody] RemoveLinkDefinitionRequest request)
     {
         var digitalLink = converter.Parse(Request.GetDisplayUrl());

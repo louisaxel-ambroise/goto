@@ -1,23 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Gs1DigitalLink.Api.Contracts;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Gs1DigitalLink.Api.Controllers;
 
 [ApiController]
-[Produces("application/json")]
-public sealed class MetadataController : ControllerBase
+[Route("/")]
+public class MetadataController(IOptions<GS1ResolverOptions> options) : ControllerBase
 {
-    [HttpGet(".well-known/gs1resolver", Name = "ResolverMetadata")]
+    [HttpGet]
+    public IActionResult Root()
+    {
+        return Redirect(options.Value.MainUrl);
+    }
+
+    [HttpGet(".well-known/gs1resolver")]
     public IActionResult ResolverMetadata()
     {
         var result = new
         {
             resolverRoot = $"{Request.Scheme}://{Request.Host}",
-            name = "GOTO Resolver - FasT&T",
-            supportedPrimaryKeys = new[] { "all" },
+            name = options.Value.Name,
+            supportedPrimaryKeys = options.Value.SupportedPrimaryKeys,
             linkTypeDefaultCanBeLinkset = false,
             contact = new
             {
-                fn = "FasT&T"
+                fn = options.Value.ContactName
             }
         };
 

@@ -10,7 +10,7 @@ namespace Gs1DigitalLink.Api.Controllers;
 [Produces("application/json")]
 public sealed class ConversionController(IDigitalLinkConverter converter) : ControllerBase
 {
-    [HttpGet("compress/{**_}", Name = "Compress")]
+    [HttpGet("compress/{**_}")]
     public IActionResult Compress(CompressionRequest request)
     {
         var options = new DigitalLinkCompressionOptions { CompressionType = request.CompressionType, CompressQueryString = request.CompressQueryString };
@@ -26,7 +26,7 @@ public sealed class ConversionController(IDigitalLinkConverter converter) : Cont
         return new OkObjectResult(response);
     }
 
-    [HttpGet("decompress/{**_}", Name = "Decompress")]
+    [HttpGet("decompress/{**_}")]
     public IActionResult Decompress()
     {
         var result = converter.Parse(Request.GetDisplayUrl());

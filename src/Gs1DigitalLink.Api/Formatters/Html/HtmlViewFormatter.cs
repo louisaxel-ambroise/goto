@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Net.Http.Headers;
 using System.Text;
 
-namespace Gs1DigitalLink.Api.Formatters;
+namespace Gs1DigitalLink.Api.Formatters.Html;
 
 public class HtmlViewFormatter : TextOutputFormatter
 {
@@ -36,7 +36,7 @@ public class HtmlViewFormatter : TextOutputFormatter
             new RouteData(),
             new ActionDescriptor());
 
-        var viewResult = engine.GetView(null, $"/Formatters/Views/{context.ObjectType!.Name}.cshtml", true);
+        var viewResult = engine.GetView(null, $"/Formatters/Html/Views/{context.ObjectType!.Name}.cshtml", true);
         if (!viewResult.Success)
         {
             throw new InvalidOperationException($"View '{context.ObjectType!.Name}' not found.");
