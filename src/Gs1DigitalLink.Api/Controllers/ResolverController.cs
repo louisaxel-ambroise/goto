@@ -20,7 +20,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
         SetHeaders(digitalLink);
 
-        return IsLinksetRequired
+        return IsLinksetRequested
             ? Linkset(digitalLink)
             : Resolve(digitalLink);
     }
@@ -34,7 +34,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
         SetHeaders(digitalLink);
 
-        return IsLinksetRequired
+        return IsLinksetRequested
             ? Linkset(digitalLink)
             : Resolve(digitalLink);
     }
@@ -112,7 +112,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
 
     #endregion
 
-    private bool IsLinksetRequired => Request.GetTypedHeaders().Accept.Any(a => a.MediaType == "application/linkset+json") 
+    private bool IsLinksetRequested => Request.GetTypedHeaders().Accept.Any(a => a.MediaType == "application/linkset+json") 
                                    || Request.Query["linkType"].ToString() is "linkset" or "all";
 
     private LinkDefinition MapLink(Link link)

@@ -34,7 +34,7 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
             matchingLinks = matchingLinks.Where(l => l.LinkType == "gs1:defaultLink" || l.LinkType == "gs1:defaultLinkMulti");
         }
 
-        var filteredLinks = FindByLanguages(matchingLinks, languages);
+        var filteredLinks = FilterByLanguage(matchingLinks, languages);
 
         matchingLinks = filteredLinks.Any()
             ? filteredLinks
@@ -50,7 +50,7 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
         return prefixRegistry.Resolve(digitalLink.CompanyPrefix, prefixes);
     }
 
-    private static IEnumerable<Link> FindByLanguages(IEnumerable<Link> matchingLinks, IEnumerable<LanguagePreference> languages)
+    private static IEnumerable<Link> FilterByLanguage(IEnumerable<Link> matchingLinks, IEnumerable<LanguagePreference> languages)
     {
         if (!languages.Any()) return matchingLinks;
 
@@ -88,13 +88,11 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
     private static List<string> GetPrefixes(DigitalLink digitalLink)
     {
         var prefixes = new List<string>();
-
         var key = digitalLink.AIs.Single(ai => ai.Key.Type is AIType.PrimaryKey);
-        var qualifiers = digitalLink.AIs.Where(ai => ai.Key.Type is AIType.Qualifier);
 
         prefixes.Add(string.Join("/", key.Code, key.Value));
 
-        foreach (var qualifier in qualifiers)
+        foreach (var qualifier in digitalLink.AIs.Where(ai => ai.Key.Type is AIType.Qualifier))
         {
             prefixes.Add(string.Join("/", prefixes.Last(), qualifier.Code, qualifier.Value));
         }
@@ -103,6 +101,20 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
     }
 
     private static IEnumerable<Link> FormatUriTemplates(IEnumerable<Link> linkset, DigitalLink digitalLink)
+    {
+        var parameters = GetDigitalLinkParameters(digitalLink);
+
+        foreach (var link in linkset)
+        {
+            var template = new UriTemplate(link.RedirectUrl, false, false);
+
+            template.AddParameters(parameters);
+
+            yield return link with { RedirectUrl = template.Resolve() };
+        }
+    }
+
+    private static Dictionary<string, object> GetDigitalLinkParameters(DigitalLink digitalLink)
     {
         var parameters = new Dictionary<string, object>();
 
@@ -116,13 +128,6 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
             }
         }
 
-        foreach (var link in linkset)
-        {
-            var template = new UriTemplate(link.RedirectUrl, false, false);
-
-            template.AddParameters(parameters);
-
-            yield return link with { RedirectUrl = template.Resolve() };
-        }
+        return parameters;
     }
 }

@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Gs1DigitalLink.Infrastructure\Gs1DigitalLink.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
 </Project>
