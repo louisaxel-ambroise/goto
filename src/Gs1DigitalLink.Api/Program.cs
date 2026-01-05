@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDigitalLinkCore();
 builder.Services.AddDigitalLinkInfrastructure();
 builder.Services.AddScoped<ILanguageContext, HttpLanguageContext>();
+builder.Services.AddHostedService<InsightConsumer>();
 builder.Services.AddAuthentication();
 builder.Services.AddRouting();
 builder.Services.AddHttpContextAccessor();

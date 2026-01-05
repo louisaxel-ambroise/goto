@@ -11,7 +11,7 @@ internal sealed class InsightRetriever(IInsightSink sink) : IInsightRetriever
 {
     public IEnumerable<ScanInsight> ListInsights(DigitalLink digitalLink, ListInsightsOptions options)
     {
-        return sink.ListInsights(digitalLink.CompanyPrefix, digitalLink.ToString(false), options);
+        return sink.ListInsights(digitalLink.ToString(false), options);
     }
 }
 

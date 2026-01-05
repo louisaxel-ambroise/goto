@@ -18,8 +18,9 @@ obj
 .terraform/.terraform/*
 *.hcl
 
-#LiteDB files
+#Sqlite files
 *.db
+*.db-*
 
 #publish profiles
 *.[Pp]ublish.xml

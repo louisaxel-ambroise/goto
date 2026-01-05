@@ -7,6 +7,7 @@ using Gs1DigitalLink.Core.Registration;
 using Gs1DigitalLink.Core.Resolution;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using System.Threading.Channels;
 
 namespace Gs1DigitalLink.Core;
 
@@ -29,9 +30,11 @@ public static class ServiceCollectionExtensions
             services.AddSingleton(JsonSerializer.Deserialize<ApplicationIdentifiers>(file, jsonOptions) ?? new() { Identifiers = [], CodeLength = [] });
         }
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton(Channel.CreateUnbounded<ScanInsight>());
+        services.AddSingleton<IInsightRecorder, InsightRecorder>();
         services.AddSingleton<IDigitalLinkConverter, DigitalLinkConverter>();
-        services.AddSingleton<ILinkRegistrator, LinkRegistrator>();
-        services.AddSingleton<IInsightRetriever, InsightRetriever>();
+        services.AddScoped<ILinkRegistrator, LinkRegistrator>();
+        services.AddScoped<IInsightRetriever, InsightRetriever>();
         services.Decorate<IDigitalLinkResolver>()
             .With<InsightDigitalLinkResolver>()
             .Then<DigitalLinkResolver>()

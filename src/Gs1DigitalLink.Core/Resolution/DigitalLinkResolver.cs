@@ -47,7 +47,7 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
     {
         var prefixes = GetPrefixes(digitalLink);
 
-        return prefixRegistry.Resolve(digitalLink.CompanyPrefix, prefixes);
+        return prefixRegistry.Resolve(prefixes);
     }
 
     private static IEnumerable<Link> FilterByLanguage(IEnumerable<Link> matchingLinks, IEnumerable<LanguagePreference> languages)

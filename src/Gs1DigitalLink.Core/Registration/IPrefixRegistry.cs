@@ -2,7 +2,7 @@
 
 public interface IPrefixRegistry
 {
-    void Register(string companyPrefix, string prefix, string title, string redirectUrl, string? language, string linkType);
-    void Unregister(string companyPrefix, string prefix, string? language, string linkType);
-    IEnumerable<Link> Resolve(string companyPrefix, IEnumerable<string> prefixes);
+    void Register(string prefix, string title, string redirectUrl, string? language, IEnumerable<string> linkTypes);
+    void Unregister(string prefix, string? language, IEnumerable<string> linkTypes);
+    IEnumerable<Link> Resolve(IEnumerable<string> prefixes);
 }
