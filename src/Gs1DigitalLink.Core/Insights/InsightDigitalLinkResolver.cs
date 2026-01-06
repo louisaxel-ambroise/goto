@@ -6,9 +6,9 @@ namespace Gs1DigitalLink.Core.Insights;
 
 internal sealed class InsightDigitalLinkResolver(IDigitalLinkResolver resolver, ILanguageContext languageContext, IInsightRecorder insightRecorder, TimeProvider timeProvider) : IDigitalLinkResolver
 {
-    public IEnumerable<Link> GetCandidates(DigitalLink digitalLink, string? linkType)
+    public IEnumerable<Link> GetCandidates(DigitalLink digitalLink, DateTimeOffset applicability, string? linkType)
     {
-        var result = resolver.GetCandidates(digitalLink, linkType).ToList();
+        var result = resolver.GetCandidates(digitalLink, applicability, linkType).ToList();
         var insight = new ScanInsight
         {
             DigitalLink = digitalLink.ToString(false),
@@ -23,8 +23,8 @@ internal sealed class InsightDigitalLinkResolver(IDigitalLinkResolver resolver, 
         return result;
     }
 
-    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink)
+    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink, DateTimeOffset applicability)
     {
-        return resolver.GetLinkset(digitalLink);
+        return resolver.GetLinkset(digitalLink, applicability);
     }
 }

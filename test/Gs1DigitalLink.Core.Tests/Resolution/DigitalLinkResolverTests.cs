@@ -38,12 +38,12 @@ public sealed class DigitalLinkResolverTests
     {
         var links = new[]
         {
-            new Link { Prefix = "01/09506000134352", Language = null, Title = "test gtin", RedirectUrl = "http://a", LinkType = "gs1:defaultLink" }
+            new Link { Prefix = "01/09506000134352", Language = null, Title = "test gtin", RedirectUrl = "http://a", LinkType = "gs1:defaultLink", Applicability = new(){ From = TimeProvider.System.GetUtcNow() } }
         };
 
         var resolver = new DigitalLinkResolver(new FakePrefixRegistry(links), new FakeLanguageContext());
 
-        var result = resolver.GetCandidates(CreateDigitalLink(), null).ToList();
+        var result = resolver.GetCandidates(CreateDigitalLink(), TimeProvider.System.GetUtcNow(), null).ToList();
 
         Assert.ContainsSingle(result);
         Assert.AreEqual("http://a", result[0].RedirectUrl);

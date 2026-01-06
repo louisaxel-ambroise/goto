@@ -10,9 +10,9 @@ public static class ServiceCollectionExtensions
     public static void AddDigitalLinkInfrastructure(this IServiceCollection services)
     {
         InsightsConnection.Initialize();
-        DigitalLinkConnection.Initialize();
+        RegistryConnection.Initialize();
 
-        services.AddScoped(_ => DigitalLinkConnection.Connect());
+        services.AddScoped(_ => RegistryConnection.Connect());
         services.AddScoped(_ => InsightsConnection.Connect());
         services.AddScoped<IPrefixRegistry, SqlitePrefixRegistry>();
         services.AddScoped<IInsightSink, SqliteInsightSink>();

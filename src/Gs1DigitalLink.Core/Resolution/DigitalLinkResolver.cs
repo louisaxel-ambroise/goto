@@ -7,22 +7,22 @@ namespace Gs1DigitalLink.Core.Resolution;
 
 public interface IDigitalLinkResolver
 {
-    IEnumerable<Link> GetCandidates(DigitalLink digitalLink, string? linkType);
-    IEnumerable<Link> GetLinkset(DigitalLink digitalLink);
+    IEnumerable<Link> GetCandidates(DigitalLink digitalLink, DateTimeOffset applicability, string? linkType);
+    IEnumerable<Link> GetLinkset(DigitalLink digitalLink, DateTimeOffset applicability);
 }
 
 internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILanguageContext languageContext) : IDigitalLinkResolver
 {
-    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink)
+    public IEnumerable<Link> GetLinkset(DigitalLink digitalLink, DateTimeOffset applicability)
     {
-        var links = LoadCandidates(digitalLink);
+        var links = LoadCandidates(digitalLink, applicability);
 
         return FormatUriTemplates(links, digitalLink);
     }
 
-    public IEnumerable<Link> GetCandidates(DigitalLink digitalLink, string? linkType)
+    public IEnumerable<Link> GetCandidates(DigitalLink digitalLink, DateTimeOffset applicability, string? linkType)
     {
-        var matchingLinks = LoadCandidates(digitalLink);
+        var matchingLinks = LoadCandidates(digitalLink, applicability);
         var languages = languageContext.GetLanguages();
 
         if (linkType is not null)
@@ -43,11 +43,11 @@ internal sealed class DigitalLinkResolver(IPrefixRegistry prefixRegistry, ILangu
         return FormatUriTemplates(matchingLinks, digitalLink);
     }
 
-    private IEnumerable<Link> LoadCandidates(DigitalLink digitalLink)
+    private IEnumerable<Link> LoadCandidates(DigitalLink digitalLink, DateTimeOffset applicability)
     {
         var prefixes = GetPrefixes(digitalLink);
 
-        return prefixRegistry.Resolve(prefixes);
+        return prefixRegistry.Resolve(applicability, prefixes);
     }
 
     private static IEnumerable<Link> FilterByLanguage(IEnumerable<Link> matchingLinks, IEnumerable<LanguagePreference> languages)
