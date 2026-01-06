@@ -1,11 +1,10 @@
 ﻿using Dapper;
 using Gs1DigitalLink.Core.Registration;
-using LiteDB;
 using System.Data;
 
-namespace Gs1DigitalLink.Infrastructure;
+namespace Gs1DigitalLink.Infrastructure.Sqlite;
 
-internal sealed class SqlitePrefixRegistry(IDbConnection connection) : IPrefixRegistry
+internal sealed class SqlitePrefixRegistry(DigitalLinkConnection connection) : IPrefixRegistry
 {
     public void Register(string prefix, string title, string redirectUrl, string? language, IEnumerable<string> linkTypes)
     {

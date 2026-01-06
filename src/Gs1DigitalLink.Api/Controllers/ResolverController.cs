@@ -43,7 +43,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
     {
         if (digitalLink.Type is not DigitalLinkType.Uncompressed)
         {
-            var uncompressedUrl = QueryHelpers.AddQueryString($"{Request.Scheme}://{Request.Host}/{digitalLink}", HttpContext.Request.Query.Where(s => s.Key != "linkType"));
+            var uncompressedUrl = QueryHelpers.AddQueryString($"{Request.Scheme}://{Request.Host}/{digitalLink.ToString(false)}", HttpContext.Request.Query.Where(s => s.Key != "linkType"));
             Response.Headers.Append("Link", $"<{uncompressedUrl}>; rel=\"owl:sameAs\";");
         }
     }
@@ -66,7 +66,7 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
     {
         var links = resolver.GetCandidates(digitalLink, Request.Query["linkType"]);
 
-        Response.Headers.Append("Link", $"<{Request.Scheme}://{Request.Host}/{digitalLink}?linkType=linkset>; rel=\"linkset\";");
+        Response.Headers.Append("Link", $"<{Request.Scheme}://{Request.Host}/{digitalLink.ToString(false)}?linkType=linkset>; rel=\"linkset\";");
 
         return links.Count() switch
         {
