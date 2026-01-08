@@ -8,7 +8,7 @@ internal sealed class SqlitePrefixRegistry(RegistryConnection connection, TimePr
 {
     public void Register(string prefix, string title, string redirectUrl, string? language, DateTimeRange applicability, IEnumerable<string> linkTypes)
     {
-        var applicableTo = timeProvider.GetUtcNow().ToUnixTimeSeconds();
+        var applicableTo = (applicability.To ?? timeProvider.GetUtcNow()).ToUnixTimeSeconds();
         var links = linkTypes.Select(type => new StoredLink
         {
             Language = language,
@@ -17,19 +17,20 @@ internal sealed class SqlitePrefixRegistry(RegistryConnection connection, TimePr
             RedirectUrl = redirectUrl,
             Title = title,
             ApplicableFrom = applicability.From.ToUnixTimeSeconds(),
-            ApplicableTo = applicability.To?.ToUnixTimeSeconds()
+            ApplicableTo = applicableTo
         });
 
         using var transaction = connection.BeginTransaction();
 
         if (linkTypes.Contains("gs1:defaultLink"))
         {
-            connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = @ApplicableTo WHERE Prefix = @Prefix AND LinkType = @LinkType", new { Prefix = prefix, LinkType = "gs1:defaultLink", ApplicableTo = applicableTo }, transaction);
+            connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = @ApplicableTo WHERE Prefix = @Prefix AND LinkType = @LinkType;", new { Prefix = prefix, LinkType = "gs1:defaultLink", ApplicableTo = applicableTo }, transaction);
         }
 
-        connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = MIN(ApplicableTo, @ApplicableFrom) WHERE Prefix = @Prefix AND Language = @Language AND LinkType = @LinkType AND ApplicableFrom < @ApplicableFrom", links, transaction);
-        connection.Execute("UPDATE [StoredLinks] SET ApplicableFrom = MAX(ApplicableFrom, @ApplicableTo) WHERE Prefix = @Prefix AND Language = @Language AND LinkType = @LinkType AND ApplicableFrom >= @ApplicableTo", links, transaction);
-        connection.Execute("INSERT INTO [StoredLinks](Prefix, RedirectUrl, Title, Language, LinkType, ApplicableFrom, ApplicableTo) VALUES(@Prefix, @RedirectUrl, @Title, @Language, @LinkType, @ApplicableFrom, @ApplicableTo)", links, transaction);
+        connection.Execute("INSERT INTO [StoredLinks](Prefix, RedirectUrl, Title, Language, LinkType, ApplicableFrom, ApplicableTo) SELECT Prefix, RedirectUrl, Title, Language, LinkType, @ApplicableTo, ApplicableTo FROM [StoredLinks] WHERE Prefix = @Prefix AND Language = @Language AND LinkType = @LinkType AND ApplicableFrom < @ApplicableFrom AND ApplicableTo > @ApplicableTo;", links, transaction);
+        connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = MIN(ApplicableTo, @ApplicableFrom) WHERE Prefix = @Prefix AND Language = @Language AND LinkType = @LinkType AND ApplicableFrom < @ApplicableFrom;", links, transaction);
+        connection.Execute("UPDATE [StoredLinks] SET ApplicableFrom = MAX(ApplicableFrom, @ApplicableTo) WHERE Prefix = @Prefix AND Language = @Language AND LinkType = @LinkType AND ApplicableFrom > @ApplicableTo;", links, transaction);
+        connection.Execute("INSERT INTO [StoredLinks](Prefix, RedirectUrl, Title, Language, LinkType, ApplicableFrom, ApplicableTo) VALUES(@Prefix, @RedirectUrl, @Title, @Language, @LinkType, @ApplicableFrom, @ApplicableTo);", links, transaction);
         transaction.Commit();
     }
 
@@ -37,7 +38,7 @@ internal sealed class SqlitePrefixRegistry(RegistryConnection connection, TimePr
     {
         var applicableTo = timeProvider.GetUtcNow().ToUnixTimeSeconds();
 
-        connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = @ApplicableTo WHERE Prefix = @Prefix AND LinkType = @Language AND LinkType IN @LinkTypes", new { Prefix = prefix, Language = language, LinkTypes = linkTypes, ApplicableTo = applicableTo });
+        connection.Execute("UPDATE [StoredLinks] SET ApplicableTo = @ApplicableTo WHERE Prefix = @Prefix AND LinkType = @Language AND LinkType IN @LinkTypes AND ApplicableFrom < @ApplicableTo AND (ApplicableTo IS NULL OR ApplicableTo > @ApplicableTo);", new { Prefix = prefix, Language = language, LinkTypes = linkTypes, ApplicableTo = applicableTo });
     }
 
     public IEnumerable<Link> Resolve(DateTimeOffset applicability, IEnumerable<string> prefixes)
