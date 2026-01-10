@@ -17,7 +17,7 @@ internal sealed class SqlitePrefixRegistry(RegistryConnection connection, TimePr
             RedirectUrl = redirectUrl,
             Title = title,
             ApplicableFrom = applicability.From.ToUnixTimeSeconds(),
-            ApplicableTo = applicableTo
+            ApplicableTo = applicability.To?.ToUnixTimeSeconds()
         });
 
         using var transaction = connection.BeginTransaction();

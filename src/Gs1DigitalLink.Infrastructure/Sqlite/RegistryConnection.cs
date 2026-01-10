@@ -22,6 +22,6 @@ internal sealed class RegistryConnection : SqliteConnection
     {
         using var connection = new RegistryConnection();
         
-        connection.Execute("CREATE TABLE IF NOT EXISTS [StoredLinks](Prefix TEXT, RedirectUrl TEXT, Title TEXT, Language TEXT, LinkType TEXT, ApplicableFrom INT, ApplicableTo INT NULL, PRIMARY KEY (Prefix, Language, LinkType, ApplicableFrom, ApplicableTo));");
+        connection.Execute("CREATE TABLE IF NOT EXISTS [StoredLinks](Id INT PRIMARY KEY, Prefix TEXT, RedirectUrl TEXT, Title TEXT, Language TEXT, LinkType TEXT, ApplicableFrom INT, ApplicableTo INT NULL, InsertedOn INT NULL, UpdatedOn INT NULL);");
     }
 }
