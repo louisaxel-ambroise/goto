@@ -18,4 +18,11 @@ public sealed record RegisterLinkDefinitionRequest
     [Required, MinLength(1)]
     public required string[] LinkTypes { get; init; }
     public required string? Language { get; init; }
+    public RegisterLinkApplicability? Applicability { get; init; }
+}
+
+public sealed record RegisterLinkApplicability
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
 }

@@ -2,7 +2,7 @@
 
 public interface IPrefixRegistry
 {
-    void Register(string prefix, string title, string redirectUrl, string? language, IEnumerable<string> linkTypes);
+    void Register(string prefix, string title, string redirectUrl, string? language, DateTimeRange applicability, IEnumerable<string> linkTypes);
     void Unregister(string prefix, string? language, IEnumerable<string> linkTypes);
-    IEnumerable<Link> Resolve(IEnumerable<string> prefixes);
+    IEnumerable<Link> Resolve(DateTimeOffset applicability, IEnumerable<string> prefixes);
 }

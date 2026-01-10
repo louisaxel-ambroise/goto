@@ -2,9 +2,9 @@
 using Gs1DigitalLink.Core.Insights;
 using System.Data;
 
-namespace Gs1DigitalLink.Infrastructure;
+namespace Gs1DigitalLink.Infrastructure.Sqlite;
 
-internal sealed class SqliteInsightSink(IDbConnection connection, TimeProvider timeProvider) : IInsightSink
+internal sealed class SqliteInsightSink(InsightsConnection connection, TimeProvider timeProvider) : IInsightSink
 {
     public void Store(ScanInsight insight)
     {
