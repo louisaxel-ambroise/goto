@@ -4,15 +4,15 @@ namespace Gs1DigitalLink.Core.Registration;
 
 public interface ILinkRegistrator
 {
-    void RegisterLink(DigitalLink digitalLink, string redirectUrl, string title, string? language, IEnumerable<string> linkTypes);
+    void RegisterLink(DigitalLink digitalLink, string redirectUrl, string title, string? language, DateTimeRange applicability, IEnumerable<string> linkTypes);
     void DeleteLink(DigitalLink digitalLink, string? language, IEnumerable<string> linkTypes);
 }
 
 internal sealed class LinkRegistrator(IPrefixRegistry prefixRegistry) : ILinkRegistrator
 {
-    public void RegisterLink(DigitalLink digitalLink, string redirectUrl, string title, string? language, IEnumerable<string> linkTypes)
+    public void RegisterLink(DigitalLink digitalLink, string redirectUrl, string title, string? language, DateTimeRange applicability, IEnumerable<string> linkTypes)
     {
-        prefixRegistry.Register(digitalLink.ToString(false), title, redirectUrl, language, linkTypes);
+        prefixRegistry.Register(digitalLink.ToString(false), title, redirectUrl, language, applicability, linkTypes);
     }
 
     public void DeleteLink(DigitalLink digitalLink, string? language, IEnumerable<string> linkTypes)

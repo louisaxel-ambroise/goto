@@ -10,19 +10,20 @@ namespace Gs1DigitalLink.Api.Controllers;
 
 [ApiController]
 [Produces("application/linkset+json", "text/html")]
-public sealed class ResolverController(IDigitalLinkConverter converter, IDigitalLinkResolver resolver) : ControllerBase
+public sealed class ResolverController(IDigitalLinkConverter converter, IDigitalLinkResolver resolver, TimeProvider timeProvider) : ControllerBase
 {
     [HttpGet]
     [Route("{**_:minlength(2)}")]
     public IActionResult HandleRequest()
     {
         var digitalLink = converter.Parse(Request.GetDisplayUrl());
+        var applicability = Request.GetTypedHeaders().Date ?? timeProvider.GetUtcNow();
 
         SetHeaders(digitalLink);
 
         return IsLinksetRequested
-            ? Linkset(digitalLink)
-            : Resolve(digitalLink);
+            ? Linkset(digitalLink, applicability)
+            : Resolve(digitalLink, applicability);
     }
     
     [HttpHead]
@@ -35,22 +36,22 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
         SetHeaders(digitalLink);
 
         return IsLinksetRequested
-            ? Linkset(digitalLink)
-            : Resolve(digitalLink);
+            ? Linkset(digitalLink, timeProvider.GetUtcNow())
+            : Resolve(digitalLink, timeProvider.GetUtcNow());
     }
 
     private void SetHeaders(DigitalLink digitalLink)
     {
         if (digitalLink.Type is not DigitalLinkType.Uncompressed)
         {
-            var uncompressedUrl = QueryHelpers.AddQueryString($"{Request.Scheme}://{Request.Host}/{digitalLink}", HttpContext.Request.Query.Where(s => s.Key != "linkType"));
+            var uncompressedUrl = QueryHelpers.AddQueryString($"{Request.Scheme}://{Request.Host}/{digitalLink.ToString(false)}", HttpContext.Request.Query.Where(s => s.Key != "linkType"));
             Response.Headers.Append("Link", $"<{uncompressedUrl}>; rel=\"owl:sameAs\";");
         }
     }
 
-    private OkObjectResult Linkset(DigitalLink digitalLink)
+    private OkObjectResult Linkset(DigitalLink digitalLink, DateTimeOffset applicability)
     {
-        var resolvedValue = resolver.GetLinkset(digitalLink);
+        var resolvedValue = resolver.GetLinkset(digitalLink, applicability);
         var queryElement = Request.Query.Where(s => s.Key != "linkType");
         var formattedLinks = resolvedValue.Select(l => $"<{QueryHelpers.AddQueryString(l.RedirectUrl, queryElement)}>; rel=\"{l.LinkType}\";{(l.Language is null ? "" : "hreflang=\"" + l.Language + "\"")}").ToList();
 
@@ -62,11 +63,11 @@ public sealed class ResolverController(IDigitalLinkConverter converter, IDigital
         return new OkObjectResult(new LinksetResult($"{Request.Scheme}://{Request.Host}/{digitalLink.ToString(false)}", dict));
     }
 
-    private IActionResult Resolve(DigitalLink digitalLink)
+    private IActionResult Resolve(DigitalLink digitalLink, DateTimeOffset applicability)
     {
-        var links = resolver.GetCandidates(digitalLink, Request.Query["linkType"]);
+        var links = resolver.GetCandidates(digitalLink, applicability, Request.Query["linkType"]);
 
-        Response.Headers.Append("Link", $"<{Request.Scheme}://{Request.Host}/{digitalLink}?linkType=linkset>; rel=\"linkset\";");
+        Response.Headers.Append("Link", $"<{Request.Scheme}://{Request.Host}/{digitalLink.ToString(false)}?linkType=linkset>; rel=\"linkset\";");
 
         return links.Count() switch
         {
